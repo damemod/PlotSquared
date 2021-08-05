@@ -35,6 +35,7 @@ import com.plotsquared.core.plot.flag.implementations.BlockIgnitionFlag;
 import com.plotsquared.core.plot.flag.implementations.BlockedCmdsFlag;
 import com.plotsquared.core.plot.flag.implementations.BreakFlag;
 import com.plotsquared.core.plot.flag.implementations.ChatFlag;
+import com.plotsquared.core.plot.flag.implementations.CopperOxideFlag;
 import com.plotsquared.core.plot.flag.implementations.CoralDryFlag;
 import com.plotsquared.core.plot.flag.implementations.CropGrowFlag;
 import com.plotsquared.core.plot.flag.implementations.DenyExitFlag;
@@ -142,7 +143,7 @@ public final class GlobalFlagContainer extends FlagContainer {
         this.addFlag(AnimalAttackFlag.ANIMAL_ATTACK_FALSE);
         this.addFlag(AnimalInteractFlag.ANIMAL_INTERACT_FALSE);
         this.addFlag(BlockBurnFlag.BLOCK_BURN_FALSE);
-        this.addFlag(BlockIgnitionFlag.BLOCK_IGNITION_FALSE);
+        this.addFlag(BlockIgnitionFlag.BLOCK_IGNITION_TRUE);
         this.addFlag(DeviceInteractFlag.DEVICE_INTERACT_FALSE);
         this.addFlag(DisablePhysicsFlag.DISABLE_PHYSICS_FALSE);
         this.addFlag(DropProtectionFlag.DROP_PROTECTION_FALSE);
@@ -193,6 +194,7 @@ public final class GlobalFlagContainer extends FlagContainer {
         this.addFlag(DenyPortalsFlag.DENY_PORTALS_FALSE);
         this.addFlag(LecternReadBookFlag.LECTERN_READ_BOOK_FALSE);
         this.addFlag(EntityChangeBlockFlag.ENTITY_CHANGE_BLOCK_FALSE);
+        this.addFlag(CopperOxideFlag.COPPER_OXIDE_FALSE);
 
         // Enum Flags
         this.addFlag(WeatherFlag.PLOT_WEATHER_FLAG_OFF);

@@ -1,5 +1,5 @@
 [versions]
-checker-qual = "3.14.0"
+checker-qual = "3.16.0"
 
 guava = "21.0" # Version set by Minecraft
 gson = "2.8.0" # Version set by Minecraft
@@ -14,9 +14,9 @@ guice = "5.0.1"
 findbugs = "3.0.1"
 
 worldedit = "7.2.6-SNAPSHOT"
-fawe = "p2v6-9"
+fawe = "1.17-93"
 vault = "1.7"
-placeholderapi = "2.10.9"
+placeholderapi = "2.10.10"
 luckperms = "5.3"
 essentialsx = "2.18.2"
 hyperverse = "0.6.0-SNAPSHOT"
@@ -37,7 +37,7 @@ paperlib = "1.0.6"
 
 mvdwapi = "3.1.1"
 squirrelid = "1.0.0-SNAPSHOT"
-serverlib = "2.1.0"
+serverlib = "2.2.1"
 http4j = "1.1-SNAPSHOT"
 
 [libraries]
@@ -64,7 +64,8 @@ findbugs = { group = "com.google.code.findbugs", name = "annotations", version.r
 # Plugins
 worldeditCore = { group = "com.sk89q.worldedit", name = "worldedit-core", version.ref = "worldedit" }
 worldeditBukkit = { group = "com.sk89q.worldedit", name = "worldedit-bukkit", version.ref = "worldedit" }
-fastasyncworldeditBukkit = { group = "com.intellectualsites.fawe", name = "FAWE-Bukkit", version.ref = "fawe" }
+fastasyncworldeditBukkit = { group = "com.fastasyncworldedit", name = "FAWE-Bukkit", version.ref = "fawe" }
+fastasyncworldeditCore = { group = "com.fastasyncworldedit", name = "FAWE-Core", version.ref = "fawe" }
 vault = { group = "com.github.MilkBowl", name = "VaultAPI", version.ref = "vault" }
 placeholderapi = { group = "me.clip", name = "placeholderapi", version.ref = "placeholderapi" }
 luckperms = { group = "net.luckperms", name = "api", version.ref = "luckperms" }

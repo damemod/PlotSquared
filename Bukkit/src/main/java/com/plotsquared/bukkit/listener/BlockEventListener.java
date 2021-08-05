@@ -52,7 +52,6 @@ import com.plotsquared.core.plot.flag.implementations.InstabreakFlag;
 import com.plotsquared.core.plot.flag.implementations.KelpGrowFlag;
 import com.plotsquared.core.plot.flag.implementations.LeafDecayFlag;
 import com.plotsquared.core.plot.flag.implementations.LiquidFlowFlag;
-import com.plotsquared.core.plot.flag.implementations.MiscInteractFlag;
 import com.plotsquared.core.plot.flag.implementations.MycelGrowFlag;
 import com.plotsquared.core.plot.flag.implementations.PlaceFlag;
 import com.plotsquared.core.plot.flag.implementations.RedstoneFlag;
@@ -78,7 +77,6 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Fireball;
-import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
@@ -98,12 +96,12 @@ import org.bukkit.event.block.BlockPhysicsEvent;
 import org.bukkit.event.block.BlockPistonExtendEvent;
 import org.bukkit.event.block.BlockPistonRetractEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
-import org.bukkit.event.block.BlockReceiveGameEvent;
 import org.bukkit.event.block.BlockRedstoneEvent;
 import org.bukkit.event.block.BlockSpreadEvent;
 import org.bukkit.event.block.CauldronLevelChangeEvent;
 import org.bukkit.event.block.EntityBlockFormEvent;
 import org.bukkit.event.block.LeavesDecayEvent;
+import org.bukkit.event.block.SpongeAbsorbEvent;
 import org.bukkit.event.world.StructureGrowEvent;
 import org.bukkit.material.Directional;
 import org.bukkit.projectiles.BlockProjectileSource;
@@ -1186,41 +1184,29 @@ public class BlockEventListener implements Listener {
 
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-    public void onBlockReceiveGame(BlockReceiveGameEvent event) {
-        Block block = event.getBlock();
-        Location location = BukkitUtil.adapt(block.getLocation());
-        Entity entity = event.getEntity();
-
+    @EventHandler(ignoreCancelled = true)
+    public void onSpongeAbsorb(SpongeAbsorbEvent event) {
+        Block sponge = event.getBlock();
+        Location location = BukkitUtil.adapt(sponge.getLocation());
         PlotArea area = location.getPlotArea();
+        List<org.bukkit.block.BlockState> blocks = event.getBlocks();
         if (area == null) {
-            return;
+            blocks.removeIf(block -> BukkitUtil.adapt(block.getLocation()).isPlotArea());
+        } else {
+            Plot origin = area.getOwnedPlot(location);
+            blocks.removeIf(block -> {
+                Location blockLocation = BukkitUtil.adapt(block.getLocation());
+                if (!area.contains(blockLocation.getX(), blockLocation.getZ())) {
+                    return true;
+                }
+                Plot plot = area.getOwnedPlot(blockLocation);
+                return !Objects.equals(plot, origin);
+            });
         }
-
-        Plot plot = location.getOwnedPlot();
-        if (plot == null || !plot.getFlag(MiscInteractFlag.class)) {
-            if (entity instanceof Player player) {
-                BukkitPlayer plotPlayer = BukkitUtil.adapt(player);
-                if (plot != null) {
-                    if (!plot.isAdded(plotPlayer.getUUID())) {
-                        plot.debug(plotPlayer.getName() + " couldn't trigger sculk sensors because misc-interact = false");
-                        event.setCancelled(true);
-                    }
-                }
-                return;
-            }
-            if (entity instanceof Item item) {
-                UUID itemThrower = item.getThrower();
-                if (!plot.isAdded(itemThrower)) {
-                    if (plot != null) {
-                        if (!plot.isAdded(itemThrower)) {
-                            plot.debug("A thrown item couldn't trigger sculk sensors because misc-interact = false");
-                            event.setCancelled(true);
-                        }
-                    }
-                }
-            }
+        if (blocks.isEmpty()) {
+            // Cancel event so the sponge block doesn't turn into a wet sponge
+            // if no water is being absorbed
+            event.setCancelled(true);
         }
     }
-
 }

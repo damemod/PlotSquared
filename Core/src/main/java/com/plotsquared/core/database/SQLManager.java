@@ -394,7 +394,7 @@ public class SQLManager implements AbstractDB {
             }
             int count = -1;
             if (!this.plotTasks.isEmpty()) {
-                count = 0;
+                count = Math.max(count, 0);
                 if (this.connection.getAutoCommit()) {
                     this.connection.setAutoCommit(false);
                 }
@@ -450,7 +450,7 @@ public class SQLManager implements AbstractDB {
                 }
             }
             if (!this.playerTasks.isEmpty()) {
-                count = 0;
+                count = Math.max(count, 0);
                 if (this.connection.getAutoCommit()) {
                     this.connection.setAutoCommit(false);
                 }
@@ -495,7 +495,7 @@ public class SQLManager implements AbstractDB {
                 }
             }
             if (!this.clusterTasks.isEmpty()) {
-                count = 0;
+                count = Math.max(count, 0);
                 if (this.connection.getAutoCommit()) {
                     this.connection.setAutoCommit(false);
                 }
@@ -1935,7 +1935,7 @@ public class SQLManager implements AbstractDB {
                             } else if (Settings.Enabled_Components.DATABASE_PURGER) {
                                 toDelete.add(id);
                             } else {
-                                LOGGER.info("Entry #{}({}) in `plot_rating` does not exist."
+                                LOGGER.warn("Entry #{}({}) in `plot_rating` does not exist."
                                         + " Create this plot or set `database-purger: true` in settings.yml", id, plot);
                             }
                         }
@@ -1963,7 +1963,7 @@ public class SQLManager implements AbstractDB {
                         } else if (Settings.Enabled_Components.DATABASE_PURGER) {
                             toDelete.add(id);
                         } else {
-                            LOGGER.info("Entry #{}({}) in `plot_helpers` does not exist."
+                            LOGGER.warn("Entry #{}({}) in `plot_helpers` does not exist."
                                     + " Create this plot or set `database-purger: true` in settings.yml", id, plot);
                         }
                     }
@@ -1990,7 +1990,7 @@ public class SQLManager implements AbstractDB {
                         } else if (Settings.Enabled_Components.DATABASE_PURGER) {
                             toDelete.add(id);
                         } else {
-                            LOGGER.info("Entry #{}({}) in `plot_trusted` does not exist."
+                            LOGGER.warn("Entry #{}({}) in `plot_trusted` does not exist."
                                     + " Create this plot or set `database-purger: true` in settings.yml", id, plot);
                         }
                     }
@@ -2017,7 +2017,7 @@ public class SQLManager implements AbstractDB {
                         } else if (Settings.Enabled_Components.DATABASE_PURGER) {
                             toDelete.add(id);
                         } else {
-                            LOGGER.info("Entry #{}({}) in `plot_denied` does not exist."
+                            LOGGER.warn("Entry #{}({}) in `plot_denied` does not exist."
                                     + " Create this plot or set `database-purger: true` in settings.yml", id, plot);
                         }
                     }
@@ -2058,7 +2058,7 @@ public class SQLManager implements AbstractDB {
                         } else if (Settings.Enabled_Components.DATABASE_PURGER) {
                             toDelete.add(id);
                         } else {
-                            LOGGER.info("Entry #{}({}) in `plot_flags` does not exist."
+                            LOGGER.warn("Entry #{}({}) in `plot_flags` does not exist."
                                     + " Create this plot or set `database-purger: true` in settings.yml", id, plot);
                         }
                     }
@@ -2113,7 +2113,7 @@ public class SQLManager implements AbstractDB {
                         } else if (Settings.Enabled_Components.DATABASE_PURGER) {
                             toDelete.add(id);
                         } else {
-                            LOGGER.info("Entry #{}({}) in `plot_settings` does not exist."
+                            LOGGER.warn("Entry #{}({}) in `plot_settings` does not exist."
                                     + " Create this plot or set `database-purger: true` in settings.yml", id, plot);
                         }
                     }
@@ -3223,8 +3223,9 @@ public class SQLManager implements AbstractDB {
                 continue;
             }
             if (plot.getArea() == null) {
-                LOGGER.error("CRITICAL ERROR IN VALIDATION TASK!");
+                LOGGER.error("CRITICAL ERROR IN VALIDATION TASK: {}", plot);
                 LOGGER.error("PLOT AREA CANNOT BE NULL! SKIPPING PLOT!");
+                LOGGER.info("Delete this entry from your database or set `database-purger: true` in the settings.yml");
                 continue;
             }
             if (database == null) {

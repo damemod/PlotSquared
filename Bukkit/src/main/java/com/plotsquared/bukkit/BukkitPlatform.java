@@ -38,6 +38,7 @@ import com.plotsquared.bukkit.inject.BukkitModule;
 import com.plotsquared.bukkit.inject.PermissionModule;
 import com.plotsquared.bukkit.inject.WorldManagerModule;
 import com.plotsquared.bukkit.listener.BlockEventListener;
+import com.plotsquared.bukkit.listener.BlockEventListener117;
 import com.plotsquared.bukkit.listener.ChunkListener;
 import com.plotsquared.bukkit.listener.EntityEventListener;
 import com.plotsquared.bukkit.listener.EntitySpawnListener;
@@ -101,7 +102,6 @@ import com.plotsquared.core.plot.world.SinglePlotArea;
 import com.plotsquared.core.plot.world.SinglePlotAreaManager;
 import com.plotsquared.core.setup.PlotAreaBuilder;
 import com.plotsquared.core.setup.SettingsNodesWrapper;
-import com.plotsquared.core.util.EconHandler;
 import com.plotsquared.core.util.EventDispatcher;
 import com.plotsquared.core.util.FileUtils;
 import com.plotsquared.core.util.PlatformWorldManager;
@@ -187,7 +187,6 @@ public final class BukkitPlatform extends JavaPlugin implements Listener, PlotPl
     private boolean methodUnloadSetup = false;
     private boolean metricsStarted;
     private boolean faweHook = false;
-    private EconHandler econ;
 
     private Injector injector;
 
@@ -263,11 +262,11 @@ public final class BukkitPlatform extends JavaPlugin implements Listener, PlotPl
             Plugin fawe = getServer().getPluginManager().getPlugin("FastAsyncWorldEdit");
             if (fawe != null) {
                 try {
-                    Class.forName("com.boydti.fawe.bukkit.regions.plotsquared.FaweQueueCoordinator");
+                    Class.forName("com.fastasyncworldedit.bukkit.regions.plotsquared.FaweQueueCoordinator");
                     faweHook = true;
                 } catch (Exception ignored) {
                     LOGGER.error("Incompatible version of FAWE to enable hook, please upgrade: https://ci.athion" +
-                            ".net/job/FastAsyncWorldEdit-P2-V6/");
+                            ".net/job/FastAsyncWorldEdit-1.17/");
                 }
             }
         }
@@ -343,6 +342,9 @@ public final class BukkitPlatform extends JavaPlugin implements Listener, PlotPl
         if (Settings.Enabled_Components.EVENTS) {
             getServer().getPluginManager().registerEvents(injector().getInstance(PlayerEventListener.class), this);
             getServer().getPluginManager().registerEvents(injector().getInstance(BlockEventListener.class), this);
+            if (serverVersion()[1] >= 17) {
+                getServer().getPluginManager().registerEvents(injector().getInstance(BlockEventListener117.class), this);
+            }
             getServer().getPluginManager().registerEvents(injector().getInstance(EntityEventListener.class), this);
             getServer().getPluginManager().registerEvents(injector().getInstance(ProjectileEventListener.class), this);
             getServer().getPluginManager().registerEvents(injector().getInstance(ServerListener.class), this);
@@ -370,14 +372,6 @@ public final class BukkitPlatform extends JavaPlugin implements Listener, PlotPl
 
         // Permissions
         this.permissionHandler().initialize();
-
-        // Economy
-        if (Settings.Enabled_Components.ECONOMY) {
-            TaskManager.runTaskAsync(() -> {
-                final EconHandler econHandler = injector().getInstance(EconHandler.class);
-                econHandler.init();
-            });
-        }
 
         if (Settings.Enabled_Components.COMPONENT_PRESETS) {
             try {
@@ -559,8 +553,6 @@ public final class BukkitPlatform extends JavaPlugin implements Listener, PlotPl
 
         // Check if we are in a safe environment
         ServerLib.checkUnsafeForks();
-        // Check whether the server runs on 16 or greater
-        ServerLib.checkJavaLTS();
     }
 
     private void unload() {

@@ -426,7 +426,7 @@ public class Settings extends Config {
     }
 
 
-    @Deprecated
+    @Deprecated(forRemoval = true)
     @Comment("Schematic interface related settings")
     public static class Web {
 
@@ -497,6 +497,11 @@ public class Settings extends Config {
         @Comment({"Whether an action bar message should be send over a chat message for notification purposes such for the ",
                 "notify-enter, notify-leave, greeting or farewell flag."})
         public static boolean NOTIFICATION_AS_ACTIONBAR = false;
+
+        @Comment({"Whether to strip any possible <click_event> components from user-defined messages, e.g. plot greeting",
+                "This can allow players to use commands to give themselves ranks as commands ran in this fashion cannot be prevent by " +
+                        "permissions etc."})
+        public static boolean REMOVE_USER_DEFINED_CLICK_EVENTS = true;
 
     }
 
@@ -760,7 +765,10 @@ public class Settings extends Config {
         public static boolean COMPONENT_PRESETS = true;
         @Comment("Enable per user locale")
         public static boolean PER_USER_LOCALE = false;
-        @Comment("The default locale")
+        @Comment({"The default locale. Before changing the language, make sure you downloaded the appropriate file and put it " +
+                "in the 'lang' folder.",
+                "You can find additional translations here: https://intellectualsites.crowdin.com/plotsquared"
+        })
         public static String DEFAULT_LOCALE = "en";
         @Comment("Use UUID cache to complete usernames")
         public static boolean EXTENDED_USERNAME_COMPLETION = true;

@@ -364,7 +364,7 @@ public class PlayerEventListener extends PlotListener implements Listener {
                 && PremiumVerification.isPremium() && UpdateUtility.hasUpdate) {
             Caption boundary = TranslatableCaption.of("update.update_boundary");
             Caption updateNotification = TranslatableCaption.of("update.update_notification");
-            Template internalVersion = Template.of("p2version", String.valueOf(UpdateUtility.internalVersion.versionString()));
+            Template internalVersion = Template.of("p2version", UpdateUtility.internalVersion.versionString());
             Template spigotVersion = Template.of("spigotversion", UpdateUtility.spigotVersion);
             Template downloadUrl = Template.of("downloadurl", "https://www.spigotmc.org/resources/77506/updates");
             pp.sendMessage(boundary);
@@ -383,6 +383,10 @@ public class PlayerEventListener extends PlotListener implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onTeleport(PlayerTeleportEvent event) {
         Player player = event.getPlayer();
+        //We need to account for bad plugins like NoCheatPlus that teleports player on/before login -_-
+        if (!player.isOnline()) {
+            return;
+        }
         BukkitPlayer pp = BukkitUtil.adapt(player);
         try (final MetaDataAccess<Plot> lastPlotAccess =
                      pp.accessTemporaryMetaData(PlayerMetaDataKeys.TEMPORARY_LAST_PLOT)) {
@@ -1163,10 +1167,15 @@ public class PlayerEventListener extends PlotListener implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onBucketEmpty(PlayerBucketEmptyEvent event) {
         BlockFace bf = event.getBlockFace();
+        // Note: a month after Bukkit 1.14.4 released, they added the API method
+        // PlayerBucketEmptyEvent#getBlock(), which returns the block the
+        // bucket contents is going to be placed at. Currently we determine this
+        // block ourselves to retain compatibility with 1.13.
         final Block block;
         // if the block can be waterlogged, the event might waterlog the block
         // sometimes
-        if (event.getBlockClicked().getBlockData() instanceof Waterlogged) {
+        if (event.getBlockClicked().getBlockData() instanceof Waterlogged waterlogged
+                && !waterlogged.isWaterlogged() && event.getBucket() != Material.LAVA_BUCKET) {
             block = event.getBlockClicked();
         } else {
             block = event.getBlockClicked().getLocation()
@@ -1435,6 +1444,9 @@ public class PlayerEventListener extends PlotListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onPlayerInteractEntity(PlayerInteractEntityEvent event) {
+        if (event.getRightClicked().getType() == EntityType.UNKNOWN) {
+            return;
+        }
         Location location = BukkitUtil.adapt(event.getRightClicked().getLocation());
         PlotArea area = location.getPlotArea();
         if (area == null) {
